@@ -49,20 +49,21 @@ function assert(expression, failureMessage) {
 */
 
 function Blob(rateOfConsuption) {
-  this.rateOfConsuption = rateOfConsuption || 0;
+  this.rateOfConsuption = rateOfConsuption || 1;
   this.peopleConsumed = this.rateOfConsuption - 1;
   this.hoursEaten = 0;
-  this.eatForAnHour = function() {
-    this.peopleConsumed += this.rateOfConsuption;
-    this.rateOfConsuption = this.peopleConsumed + 1;
-    this.hoursEaten++;
-  };
 }
+
+Blob.prototype.eatPerson = function() {
+  this.hoursEaten += 1 / this.rateOfConsuption;
+  this.peopleConsumed++;
+  this.rateOfConsuption++;
+};
 
 var blob = new Blob(1);
 
 while (blob.peopleConsumed < 1000) {
-  blob.eatForAnHour();
+  blob.eatPerson();
 }
 
 var hoursSpentInDowington = blob.hoursEaten;
@@ -72,12 +73,12 @@ var hoursSpentInDowington = blob.hoursEaten;
 // town, and the starting consumption rate, and returns the number
 // of hours the blob needs to ooze its way through that town.
 
-function hoursToOoze(population, peoplePerHour) {
+function hoursToOoze(population, consumptionRate) {
   var peopleEaten = 0, hoursEaten = 0;
   while (peopleEaten < population) {
-    peopleEaten += peoplePerHour;
-    peoplePerHour = peopleEaten + 1;
-    hoursEaten++;
+    hoursEaten += 1 / consumptionRate;
+    peopleEaten++;
+    consumptionRate++;
   }
   return hoursEaten;
   // TODO: implement me based on the instructions above. Be sure to then assign me to the Blob's prototype.
@@ -91,9 +92,10 @@ assert(blob.hoursToOoze(1000, 1) === hoursSpentInDowington,
 // TODO: write three more assertions like the two above, testing out
 // the hoursToOoze method.
 
-assert(blob.hoursToOoze(10, 11) === 1, "The blob should eat the town in an hour");
-assert(blob.hoursToOoze(31, 1) === 5, "The blob should eat the town in exactly 5 hours");
-assert(blob.hoursToOoze(444, 1) === 9, "The blob should eat the town in 9 hours");
+assert(blob.hoursToOoze(1, 1) === 1, "The blob should eat the town in an hour");
+assert(blob.hoursToOoze(1, 10) === 0.1, "The blob should eat the town in exactly 6 minutes");
+assert(blob.hoursToOoze(999, 1) < hoursSpentInDowington,
+"The blob should eat the town in less time than it took to eat Dowington");
 
 //*********************************************************
 // PROBLEM 2: Universal Translator. 20 points
@@ -124,6 +126,7 @@ function sayHello (sb) {
     // use the 'hello' object at the beginning of this exercise
     // to do the translating
 
+    console.log(hello[this.language]);
     return hello[sb.language];
 
     //TODO: put this on the SentientBeing prototype
@@ -164,8 +167,8 @@ assert((new Romulan()).sayHello(new Klingon()) === "nuqneH",
 //*********************************************************
 
 ///Here is my original answer that just sorts by the last letter.
-///But I think I wrote better code below that sorts by the last letter but
-///keeps looking at letters (if it matchs on any leter)
+///But I think I wrote better code below that sorts alphbetically
+///starting with the last letter (but keeps going if it matchs on any leter)
 // function lastLetterSort(stringArray) {
 //   function byLastLetter(a, b) {
 //     //TODO: implement me. sort the strings in alphabetical
@@ -208,7 +211,8 @@ function lastLetterSort(stringArray) {
 
 var arrayToSort = [ "Banana", "Mango", "Orange", "Apple" ];
 lastLetterSort(arrayToSort);
-assert(arrayToSort[2] === "Apple", "Apple should be the third value in the array");
+assert(arrayToSort.join() === "Banana,Orange,Apple,Mango",
+  "Your array should be ordered like this: 'Banana,Orange,Apple,Mango'");
 
 var arrayToSort = [ "Queen", "Duchess", "Princess", "Prince", "Duke", "King" ];
 lastLetterSort(arrayToSort);
